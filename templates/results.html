@@ -1,0 +1,274 @@
+{% extends "base.html" %} {% block title %}Prediction Results{% endblock %} {%
+block content %}
+<div class="container my-5">
+  <!-- Header -->
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="text-center mb-4">
+        <h1 class="display-4 text-primary">
+          <i class="fas fa-chart-bar me-3"></i>
+          Prediction Results
+        </h1>
+        <p class="lead text-muted">
+          Analysis complete - Review the results from both models
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patient Information Summary -->
+  <div class="row justify-content-center mb-4">
+    <div class="col-lg-10">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="fas fa-user me-2"></i>
+            Patient Information
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <strong>Age:</strong> {{ form_data.age }} years
+            </div>
+            <div class="col-md-3">
+              <strong>Gender:</strong> {{ form_data.gender }}
+            </div>
+            <div class="col-md-3">
+              <strong>BMI:</strong> {{ "%.1f"|format(form_data.bmi) }} kg/m²
+            </div>
+            <div class="col-md-3">
+              <strong>HbA1c:</strong> {{ "%.1f"|format(form_data.hba1c) }}%
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-md-3">
+              <strong>Urea:</strong> {{ "%.1f"|format(form_data.urea) }} mg/dL
+            </div>
+            <div class="col-md-3">
+              <strong>Cholesterol:</strong> {{ "%.0f"|format(form_data.chol) }}
+              mg/dL
+            </div>
+            <div class="col-md-3">
+              <strong>VLDL:</strong> {{ "%.1f"|format(form_data.vldl) }} mg/dL
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Model Predictions -->
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="row">
+        {% for model_name, prediction in predictions.items() %}
+        <div class="col-lg-6 mb-4">
+          <div class="card h-100 border-0 shadow">
+            <!-- Model Header -->
+            <div
+              class="card-header {{ 'bg-success' if model_name == 'random_forest' else 'bg-info' }} text-white"
+            >
+              <h5 class="mb-0">
+                <i
+                  class="fas {{ 'fa-tree' if model_name == 'random_forest' else 'fa-chart-line' }} me-2"
+                ></i>
+                {{ 'Random Forest' if model_name == 'random_forest' else
+                'Logistic Regression' }}
+              </h5>
+            </div>
+
+            <div class="card-body">
+              {% if 'error' in prediction %}
+              <!-- Error Display -->
+              <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Prediction Error:</strong> {{ prediction.error }}
+              </div>
+              {% else %}
+              <!-- Prediction Result -->
+              <div class="text-center mb-4">
+                {% set class_colors = {'N': 'success', 'P': 'warning', 'Y':
+                'danger'} %} {% set class_names = {'N': 'Normal', 'P':
+                'Pre-diabetes', 'Y': 'Diabetes'} %}
+
+                <div
+                  class="alert alert-{{ class_colors.get(prediction.prediction, 'secondary') }} border-0 shadow-sm"
+                >
+                  <h3 class="mb-2">
+                    <i
+                      class="fas {{ 'fa-check-circle' if prediction.prediction == 'N' else 'fa-exclamation-triangle' if prediction.prediction == 'P' else 'fa-times-circle' }} me-2"
+                    ></i>
+                    {{ class_names.get(prediction.prediction,
+                    prediction.prediction) }}
+                  </h3>
+                  {% if prediction.confidence %}
+                  <div class="mt-2">
+                    <strong
+                      >Confidence: {{ "%.1f"|format(prediction.confidence * 100)
+                      }}%</strong
+                    >
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Probability Distribution -->
+              {% if prediction.probabilities %}
+              <div class="mb-3">
+                <h6>
+                  <i class="fas fa-percentage me-2"></i>Probability Distribution
+                </h6>
+                {% for class_name, prob in prediction.probabilities.items() %}
+                {% set percentage = (prob * 100)|round(1) %}
+                <div class="mb-2">
+                  <div class="d-flex justify-content-between">
+                    <span>{{ class_names.get(class_name, class_name) }}</span>
+                    <span>{{ percentage }}%</span>
+                  </div>
+                  <div class="progress" style="height: 8px">
+                    <div
+                      class="progress-bar bg-{{ class_colors.get(class_name, 'secondary') }}"
+                      style="width: {{ percentage }}%"
+                    ></div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              <!-- Recommendations -->
+              <div class="mt-3">
+                <h6><i class="fas fa-lightbulb me-2"></i>Recommendations</h6>
+                {% if prediction.prediction == 'N' %}
+                <p class="text-success mb-0">
+                  <i class="fas fa-thumbs-up me-1"></i>
+                  Maintain current healthy lifestyle. Continue regular exercise
+                  and balanced diet.
+                </p>
+                {% elif prediction.prediction == 'P' %}
+                <p class="text-warning mb-0">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  Consider lifestyle modifications and regular monitoring.
+                  Consult healthcare provider.
+                </p>
+                {% else %}
+                <p class="text-danger mb-0">
+                  <i class="fas fa-medical-kit me-1"></i>
+                  Consult healthcare provider immediately for proper diagnosis
+                  and treatment plan.
+                </p>
+                {% endif %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Model Comparison -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-lg-10">
+      <div class="card border-0 shadow">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">
+            <i class="fas fa-balance-scale me-2"></i>
+            Model Comparison
+          </h5>
+        </div>
+        <div class="card-body">
+          {% set rf_pred = predictions.get('random_forest',
+          {}).get('prediction', 'Error') %} {% set lr_pred =
+          predictions.get('logistic_regression', {}).get('prediction', 'Error')
+          %}
+
+          <div class="row text-center">
+            <div class="col-md-4">
+              <h6>Agreement</h6>
+              {% if rf_pred == lr_pred and rf_pred != 'Error' %}
+              <span class="badge bg-success fs-6">
+                <i class="fas fa-check me-1"></i>Both models agree
+              </span>
+              {% else %}
+              <span class="badge bg-warning fs-6">
+                <i class="fas fa-exclamation me-1"></i>Models disagree
+              </span>
+              {% endif %}
+            </div>
+            <div class="col-md-4">
+              <h6>Random Forest</h6>
+              <span
+                class="badge {{ 'bg-success' if rf_pred == 'N' else 'bg-warning' if rf_pred == 'P' else 'bg-danger' if rf_pred == 'Y' else 'bg-secondary' }} fs-6"
+              >
+                {{ rf_pred }}
+              </span>
+            </div>
+            <div class="col-md-4">
+              <h6>Logistic Regression</h6>
+              <span
+                class="badge {{ 'bg-success' if lr_pred == 'N' else 'bg-warning' if lr_pred == 'P' else 'bg-danger' if lr_pred == 'Y' else 'bg-secondary' }} fs-6"
+              >
+                {{ lr_pred }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-lg-10 text-center">
+      <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg me-3">
+        <i class="fas fa-plus me-2"></i>
+        New Prediction
+      </a>
+      <button class="btn btn-secondary btn-lg" onclick="window.print()">
+        <i class="fas fa-print me-2"></i>
+        Print Results
+      </button>
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="row justify-content-center mt-5">
+    <div class="col-lg-10">
+      <div class="alert alert-warning border-0">
+        <h6 class="alert-heading">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          Medical Disclaimer
+        </h6>
+        <p class="mb-0">
+          These predictions are generated by machine learning models for
+          educational and screening purposes only. They should not be used as a
+          substitute for professional medical diagnosis, treatment, or advice.
+          Always consult qualified healthcare professionals for proper medical
+          evaluation and care.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_scripts %}
+<script>
+  // Print functionality
+  window.onload = function () {
+    // Add print styles
+    const printStyles = `
+        @media print {
+            .btn, .alert-warning:last-child, nav, footer { display: none !important; }
+            .card { border: 1px solid #dee2e6 !important; }
+            .card-header { background-color: #f8f9fa !important; color: #000 !important; }
+        }
+    `;
+
+    const style = document.createElement("style");
+    style.textContent = printStyles;
+    document.head.appendChild(style);
+  };
+</script>
+{% endblock %}
