@@ -11,13 +11,12 @@ class ModelPredictor:
         self.models = {}
         self.scalers = {}
         self.encoders = {}
-        # These will be auto-detected from the actual models
-        self.feature_names = None
+        # Use the detected feature order from your logs
+        self.feature_names = ['AGE', 'Gender', 'Urea', 'Cr', 'HbA1c', 'Chol', 'TG', 'HDL', 'LDL', 'BMI', 'VLDL']
         self.class_names = ['N', 'P', 'Y']  # Normal, Pre-diabetes, Diabetes
         
         self._load_models()
         self._load_scalers()
-        self._detect_features()
         self._load_encoders()
     
     def _load_models(self):
@@ -55,58 +54,6 @@ class ModelPredictor:
                     print(f"⚠️ Scaler file not found: {path}")
             except Exception as e:
                 print(f"❌ Error loading {model_name} scaler: {e}")
-    
-    def _detect_features(self):
-        """Auto-detect feature names from the trained models"""
-        # Try to get feature names from the first available model
-        for model_name, model in self.models.items():
-            try:
-                if hasattr(model, 'feature_names_in_'):
-                    # sklearn >= 1.0 stores feature names
-                    self.feature_names = list(model.feature_names_in_)
-                    print(f"✅ Detected feature names from {model_name}: {self.feature_names}")
-                    break
-                elif hasattr(model, 'n_features_'):
-                    # Older sklearn versions, try to infer from scaler
-                    if model_name in self.scalers:
-                        scaler = self.scalers[model_name]
-                        if hasattr(scaler, 'feature_names_in_'):
-                            self.feature_names = list(scaler.feature_names_in_)
-                            print(f"✅ Detected feature names from {model_name} scaler: {self.feature_names}")
-                            break
-                        else:
-                            n_features = model.n_features_
-                            print(f"⚠️ Model expects {n_features} features but no names found")
-            except Exception as e:
-                print(f"⚠️ Could not detect features from {model_name}: {e}")
-        
-        # If we couldn't detect features, use the common diabetes dataset features
-        if self.feature_names is None:
-            # Try the most common feature order from diabetes datasets
-            possible_features = [
-                ['AGE', 'Gender', 'Urea', 'Cr', 'HbA1c', 'Chol', 'TG', 'HDL', 'LDL', 'BMI', 'VLDL'],
-                ['AGE', 'Gender', 'Urea', 'Cr', 'HbA1c', 'HDL', 'LDL', 'Chol', 'TG', 'BMI', 'VLDL'],
-                ['Age', 'Gender', 'Urea', 'Cr', 'HbA1c', 'Chol', 'TG', 'HDL', 'LDL', 'BMI', 'VLDL'],
-                ['Age', 'Gender', 'Urea', 'Cr', 'HbA1c', 'HDL', 'LDL', 'Chol', 'TG', 'BMI', 'VLDL']
-            ]
-            
-            # Try each possible feature combination
-            for features in possible_features:
-                try:
-                    # Test with dummy data
-                    test_data = np.zeros((1, len(features)))
-                    model = list(self.models.values())[0]
-                    model.predict(test_data)
-                    self.feature_names = features
-                    print(f"✅ Successfully detected feature order: {self.feature_names}")
-                    break
-                except:
-                    continue
-            
-            if self.feature_names is None:
-                # Default fallback
-                self.feature_names = ['AGE', 'Gender', 'Urea', 'Cr', 'HbA1c', 'Chol', 'TG', 'HDL', 'LDL', 'BMI', 'VLDL']
-                print(f"⚠️ Using default feature names: {self.feature_names}")
     
     def _load_encoders(self):
         """Load or create label encoders"""
@@ -151,82 +98,69 @@ class ModelPredictor:
         print(f"🔍 Expected features: {self.feature_names}")
         print(f"🔍 Input data keys: {list(data.keys())}")
         
-        # Create DataFrame
-        df = pd.DataFrame([data])
-        
-        # Map input keys to expected feature names (case-insensitive)
-        feature_mapping = {}
-        for input_key in data.keys():
-            for expected_feature in self.feature_names:
-                if input_key.lower() == expected_feature.lower():
-                    feature_mapping[input_key] = expected_feature
-                    break
-                elif input_key.lower() == 'age' and expected_feature.upper() == 'AGE':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'gender' and expected_feature.upper() == 'GENDER':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'cr' and expected_feature.upper() == 'CR':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'hba1c' and expected_feature.upper() == 'HBA1C':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'hdl' and expected_feature.upper() == 'HDL':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'ldl' and expected_feature.upper() == 'LDL':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'chol' and expected_feature.upper() == 'CHOL':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'tg' and expected_feature.upper() == 'TG':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'bmi' and expected_feature.upper() == 'BMI':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'vldl' and expected_feature.upper() == 'VLDL':
-                    feature_mapping[input_key] = expected_feature
-                elif input_key.lower() == 'urea' and expected_feature.upper() == 'UREA':
-                    feature_mapping[input_key] = expected_feature
+        # Map input data to the correct order and feature names
+        feature_mapping = {
+            'age': 'AGE',
+            'gender': 'Gender',
+            'urea': 'Urea',
+            'cr': 'Cr',
+            'hba1c': 'HbA1c',
+            'hdl': 'HDL',
+            'ldl': 'LDL',
+            'chol': 'Chol',
+            'tg': 'TG',
+            'bmi': 'BMI',
+            'vldl': 'VLDL'
+        }
         
         print(f"🔍 Feature mapping: {feature_mapping}")
         
-        # Rename columns
-        df = df.rename(columns=feature_mapping)
+        # Create a list in the exact order expected
+        feature_values = []
         
-        # Encode gender
-        gender_col = None
-        for col in df.columns:
-            if col.upper() in ['GENDER', 'GENDER']:
-                gender_col = col
-                break
+        for expected_feature in self.feature_names:
+            # Find the corresponding input key
+            input_key = None
+            for key, mapped_feature in feature_mapping.items():
+                if mapped_feature == expected_feature:
+                    input_key = key
+                    break
+            
+            if input_key and input_key in data:
+                value = data[input_key]
+                
+                # Handle gender encoding
+                if expected_feature == 'Gender' and isinstance(value, str):
+                    if 'gender' in self.encoders:
+                        try:
+                            value = self.encoders['gender'].transform([value])[0]
+                            print(f"✅ Encoded gender: {data[input_key]} -> {value}")
+                        except ValueError as e:
+                            print(f"⚠️ Gender encoding error: {e}")
+                            value = 0  # Default to first class
+                    else:
+                        # Manual encoding if no encoder available
+                        value = 1 if value.lower() == 'male' else 0
+                        print(f"✅ Manual gender encoding: {data[input_key]} -> {value}")
+                
+                feature_values.append(float(value))
+            else:
+                raise ValueError(f"Missing required feature: {expected_feature} (input key: {input_key})")
         
-        if gender_col and 'gender' in self.encoders:
-            try:
-                df[gender_col] = self.encoders['gender'].transform(df[gender_col])
-                print(f"✅ Encoded gender column: {gender_col}")
-            except ValueError as e:
-                print(f"⚠️ Gender encoding error: {e}")
-                df[gender_col] = 0  # Default to first class
+        # Convert to numpy array (this bypasses any feature name validation)
+        X = np.array([feature_values])
         
-        # Ensure we have all required features
-        missing_features = []
-        for feature in self.feature_names:
-            if feature not in df.columns:
-                missing_features.append(feature)
+        print(f"✅ Created feature array shape: {X.shape}")
+        print(f"✅ Feature values: {X[0]}")
         
-        if missing_features:
-            raise ValueError(f"Missing required features: {missing_features}")
-        
-        # Ensure correct column order
-        df = df[self.feature_names]
-        
-        print(f"✅ Final DataFrame shape: {df.shape}")
-        print(f"✅ Final DataFrame columns: {list(df.columns)}")
-        
-        # Scale features
+        # Scale features - using numpy array to avoid feature name issues
         if model_name in self.scalers:
-            df_scaled = self.scalers[model_name].transform(df)
+            X_scaled = self.scalers[model_name].transform(X)
             print(f"✅ Applied scaling for {model_name}")
-            return df_scaled
+            return X_scaled
         else:
             print(f"⚠️ No scaler found for {model_name}")
-            return df.values
+            return X
     
     def predict(self, data):
         """Make predictions using all available models"""
