@@ -43,7 +43,7 @@ endblock %} {% block content %}
 
   <!-- Input Form -->
   <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-10">
       <div class="card shadow-lg border-0">
         <div class="card-header bg-primary text-white">
           <h4 class="mb-0">
@@ -108,6 +108,25 @@ endblock %} {% block content %}
                 <div class="form-text">Normal range: 7-45 mg/dL</div>
               </div>
 
+              <!-- Creatinine -->
+              <div class="col-md-6 mb-3">
+                <label for="cr" class="form-label">
+                  <i class="fas fa-flask me-1"></i>Creatinine (mg/dL)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="cr"
+                  name="cr"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                  required
+                  placeholder="Enter creatinine level"
+                />
+                <div class="form-text">Normal range: 0.6-1.2 mg/dL</div>
+              </div>
+
               <!-- HbA1c -->
               <div class="col-md-6 mb-3">
                 <label for="hba1c" class="form-label">
@@ -129,10 +148,48 @@ endblock %} {% block content %}
                 </div>
               </div>
 
-              <!-- Cholesterol -->
+              <!-- HDL Cholesterol -->
+              <div class="col-md-6 mb-3">
+                <label for="hdl" class="form-label">
+                  <i class="fas fa-heart me-1"></i>HDL Cholesterol (mg/dL)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="hdl"
+                  name="hdl"
+                  min="0"
+                  max="150"
+                  step="1"
+                  required
+                  placeholder="Enter HDL cholesterol"
+                />
+                <div class="form-text">Good: Men ≥40, Women ≥50 mg/dL</div>
+              </div>
+
+              <!-- LDL Cholesterol -->
+              <div class="col-md-6 mb-3">
+                <label for="ldl" class="form-label">
+                  <i class="fas fa-heartbeat me-1"></i>LDL Cholesterol (mg/dL)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="ldl"
+                  name="ldl"
+                  min="0"
+                  max="300"
+                  step="1"
+                  required
+                  placeholder="Enter LDL cholesterol"
+                />
+                <div class="form-text">Optimal: &lt;100 mg/dL</div>
+              </div>
+
+              <!-- Total Cholesterol -->
               <div class="col-md-6 mb-3">
                 <label for="chol" class="form-label">
-                  <i class="fas fa-heartbeat me-1"></i>Cholesterol (mg/dL)
+                  <i class="fas fa-heartbeat me-1"></i>Total Cholesterol (mg/dL)
                 </label>
                 <input
                   type="number"
@@ -143,9 +200,28 @@ endblock %} {% block content %}
                   max="500"
                   step="1"
                   required
-                  placeholder="Enter cholesterol level"
+                  placeholder="Enter total cholesterol"
                 />
                 <div class="form-text">Desirable: &lt;200 mg/dL</div>
+              </div>
+
+              <!-- Triglycerides -->
+              <div class="col-md-6 mb-3">
+                <label for="tg" class="form-label">
+                  <i class="fas fa-microscope me-1"></i>Triglycerides (mg/dL)
+                </label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="tg"
+                  name="tg"
+                  min="0"
+                  max="1000"
+                  step="1"
+                  required
+                  placeholder="Enter triglycerides level"
+                />
+                <div class="form-text">Normal: &lt;150 mg/dL</div>
               </div>
 
               <!-- BMI -->
@@ -168,7 +244,7 @@ endblock %} {% block content %}
               </div>
 
               <!-- VLDL -->
-              <div class="col-md-12 mb-4">
+              <div class="col-md-6 mb-4">
                 <label for="vldl" class="form-label">
                   <i class="fas fa-microscope me-1"></i>VLDL (mg/dL)
                 </label>
@@ -202,7 +278,7 @@ endblock %} {% block content %}
 
   <!-- Information Section -->
   <div class="row mt-5">
-    <div class="col-lg-8 mx-auto">
+    <div class="col-lg-10 mx-auto">
       <div class="card border-0 bg-light">
         <div class="card-body text-center">
           <h5 class="card-title">
@@ -211,7 +287,7 @@ endblock %} {% block content %}
           </h5>
           <p class="card-text">
             This tool uses two advanced machine learning models trained on
-            diabetes datasets:
+            comprehensive diabetes datasets with 11 clinical features:
           </p>
           <div class="row">
             <div class="col-md-6">
@@ -223,6 +299,11 @@ endblock %} {% block content %}
               linear predictions with balanced data
             </div>
           </div>
+          <hr />
+          <small class="text-muted">
+            <strong>Clinical Features:</strong> Age, Gender, Urea, Creatinine,
+            HbA1c, HDL, LDL, Total Cholesterol, Triglycerides, BMI, VLDL
+          </small>
           <hr />
           <small class="text-muted">
             <i class="fas fa-exclamation-triangle me-1"></i>

@@ -31,13 +31,17 @@ def predict():
         return redirect(url_for('index'))
     
     try:
-        # Get form data
+        # Get form data with all required features
         form_data = {
             'age': float(request.form.get('age')),
             'gender': request.form.get('gender'),
             'urea': float(request.form.get('urea')),
+            'cr': float(request.form.get('cr')),  # Added Creatinine
             'hba1c': float(request.form.get('hba1c')),
+            'hdl': float(request.form.get('hdl')),  # Added HDL
+            'ldl': float(request.form.get('ldl')),  # Added LDL
             'chol': float(request.form.get('chol')),
+            'tg': float(request.form.get('tg')),    # Added Triglycerides
             'bmi': float(request.form.get('bmi')),
             'vldl': float(request.form.get('vldl'))
         }
@@ -73,8 +77,8 @@ def api_predict():
         if not data:
             return jsonify({'error': 'No data provided'}), 400
         
-        # Validate required fields
-        required_fields = ['age', 'gender', 'urea', 'hba1c', 'chol', 'bmi', 'vldl']
+        # Validate required fields (updated with all features)
+        required_fields = ['age', 'gender', 'urea', 'cr', 'hba1c', 'hdl', 'ldl', 'chol', 'tg', 'bmi', 'vldl']
         missing_fields = [field for field in required_fields if field not in data]
         
         if missing_fields:

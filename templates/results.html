@@ -27,7 +27,8 @@ block content %}
           </h5>
         </div>
         <div class="card-body">
-          <div class="row">
+          <!-- Row 1: Basic Demographics -->
+          <div class="row mb-2">
             <div class="col-md-3">
               <strong>Age:</strong> {{ form_data.age }} years
             </div>
@@ -41,16 +42,46 @@ block content %}
               <strong>HbA1c:</strong> {{ "%.1f"|format(form_data.hba1c) }}%
             </div>
           </div>
-          <div class="row mt-2">
+
+          <!-- Row 2: Kidney Function -->
+          <div class="row mb-2">
             <div class="col-md-3">
               <strong>Urea:</strong> {{ "%.1f"|format(form_data.urea) }} mg/dL
             </div>
             <div class="col-md-3">
-              <strong>Cholesterol:</strong> {{ "%.0f"|format(form_data.chol) }}
+              <strong>Creatinine:</strong> {{ "%.1f"|format(form_data.cr) }}
               mg/dL
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
+              <small class="text-muted"
+                ><i class="fas fa-kidney me-1"></i>Kidney Function
+                Markers</small
+              >
+            </div>
+          </div>
+
+          <!-- Row 3: Lipid Profile -->
+          <div class="row">
+            <div class="col-md-2">
+              <strong>Total Chol:</strong> {{ "%.0f"|format(form_data.chol) }}
+              mg/dL
+            </div>
+            <div class="col-md-2">
+              <strong>HDL:</strong> {{ "%.0f"|format(form_data.hdl) }} mg/dL
+            </div>
+            <div class="col-md-2">
+              <strong>LDL:</strong> {{ "%.0f"|format(form_data.ldl) }} mg/dL
+            </div>
+            <div class="col-md-2">
+              <strong>TG:</strong> {{ "%.0f"|format(form_data.tg) }} mg/dL
+            </div>
+            <div class="col-md-2">
               <strong>VLDL:</strong> {{ "%.1f"|format(form_data.vldl) }} mg/dL
+            </div>
+            <div class="col-md-2">
+              <small class="text-muted"
+                ><i class="fas fa-heart me-1"></i>Lipid Profile</small
+              >
             </div>
           </div>
         </div>

@@ -18,12 +18,16 @@ class Config:
     # Session settings
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)
     
-    # Feature validation ranges
+    # Feature validation ranges (updated with all features)
     FEATURE_RANGES = {
         'age': (0, 120),
         'urea': (0, 200),
+        'cr': (0, 10),        # Creatinine
         'hba1c': (0, 20),
-        'chol': (0, 500),
+        'hdl': (0, 150),      # HDL Cholesterol
+        'ldl': (0, 300),      # LDL Cholesterol
+        'chol': (0, 500),     # Total Cholesterol
+        'tg': (0, 1000),      # Triglycerides
         'bmi': (10, 60),
         'vldl': (0, 100)
     }
@@ -61,6 +65,76 @@ class Config:
             'description': 'Diabetes detected',
             'color': 'danger',
             'recommendation': 'Consult healthcare provider for proper treatment'
+        }
+    }
+    
+    # Feature information for documentation
+    FEATURE_INFO = {
+        'age': {
+            'name': 'Age',
+            'unit': 'years',
+            'normal_range': '0-120',
+            'description': 'Patient age in years'
+        },
+        'gender': {
+            'name': 'Gender',
+            'unit': '',
+            'normal_range': 'Male/Female',
+            'description': 'Patient gender'
+        },
+        'urea': {
+            'name': 'Urea',
+            'unit': 'mg/dL',
+            'normal_range': '7-45',
+            'description': 'Blood urea nitrogen level'
+        },
+        'cr': {
+            'name': 'Creatinine',
+            'unit': 'mg/dL',
+            'normal_range': '0.6-1.2',
+            'description': 'Serum creatinine level'
+        },
+        'hba1c': {
+            'name': 'HbA1c',
+            'unit': '%',
+            'normal_range': '<5.7',
+            'description': 'Glycated hemoglobin'
+        },
+        'hdl': {
+            'name': 'HDL Cholesterol',
+            'unit': 'mg/dL',
+            'normal_range': 'M≥40, F≥50',
+            'description': 'High-density lipoprotein cholesterol'
+        },
+        'ldl': {
+            'name': 'LDL Cholesterol',
+            'unit': 'mg/dL',
+            'normal_range': '<100',
+            'description': 'Low-density lipoprotein cholesterol'
+        },
+        'chol': {
+            'name': 'Total Cholesterol',
+            'unit': 'mg/dL',
+            'normal_range': '<200',
+            'description': 'Total cholesterol level'
+        },
+        'tg': {
+            'name': 'Triglycerides',
+            'unit': 'mg/dL',
+            'normal_range': '<150',
+            'description': 'Triglycerides level'
+        },
+        'bmi': {
+            'name': 'BMI',
+            'unit': 'kg/m²',
+            'normal_range': '18.5-24.9',
+            'description': 'Body Mass Index'
+        },
+        'vldl': {
+            'name': 'VLDL',
+            'unit': 'mg/dL',
+            'normal_range': '<30',
+            'description': 'Very low-density lipoprotein cholesterol'
         }
     }
 

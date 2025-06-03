@@ -11,8 +11,9 @@ class ModelPredictor:
         self.models = {}
         self.scalers = {}
         self.encoders = {}
-        self.feature_names = ['AGE', 'Gender', 'Urea', 'HbA1c', 'Chol', 'BMI', 'VLDL']
-        self.class_names = ['N', 'P', 'Y']  # Normal, Pre-diabetes, Diabetes (adjust based on your data)
+        # Updated feature names to match your trained models
+        self.feature_names = ['AGE', 'Gender', 'Urea', 'Cr', 'HbA1c', 'HDL', 'LDL', 'Chol', 'TG', 'BMI', 'VLDL']
+        self.class_names = ['N', 'P', 'Y']  # Normal, Pre-diabetes, Diabetes
         
         self._load_models()
         self._load_scalers()
@@ -101,8 +102,12 @@ class ModelPredictor:
             'age': 'AGE',
             'gender': 'Gender',
             'urea': 'Urea',
+            'cr': 'Cr',
             'hba1c': 'HbA1c',
+            'hdl': 'HDL',
+            'ldl': 'LDL',
             'chol': 'Chol',
+            'tg': 'TG',
             'bmi': 'BMI',
             'vldl': 'VLDL'
         }
